@@ -13,12 +13,16 @@ type Pixel struct {
 }
 
 func (p *Pixel) RGBA() (r, g, b, a uint32) {
-	r = ((p.color >> (8 * 3)) & 0xFF) << 8
-	g = ((p.color >> (8 * 2)) & 0xFF) << 8
-	b = ((p.color >> (8 * 1)) & 0xFF) << 8
-	a = ((p.color >> (8 * 0)) & 0xFF) << 8
+	r = (p.color >> (8 * 3)) & 0xFF
+	g = (p.color >> (8 * 2)) & 0xFF
+	b = (p.color >> (8 * 1)) & 0xFF
+	a = (p.color >> (8 * 0)) & 0xFF
 
-	return r, g, b, a
+	r = uint32(r) * 0x101
+	g = uint32(g) * 0x101
+	b = uint32(b) * 0x101
+	a = uint32(a) * 0x101
+	return r * a / 0xffff, g * a / 0xfff, b * a / 0xffff, a
 }
 
 type Canvas struct {
@@ -39,18 +43,18 @@ func (c *Canvas) At(x, y int) color.Color {
 	return &c.pixels[y*c.width+x]
 }
 
-func (c *Canvas) Opaque() bool {
-	b := c.Bounds()
-	for y := b.Min.Y; y < b.Max.Y; y++ {
-		for x := b.Min.X; x < b.Max.X; x++ {
-			_, _, _, a := c.At(x, y).RGBA()
-			if a != 0xff00 {
-				return false
-			}
-		}
-	}
-	return true
-}
+//func (c *Canvas) Opaque() bool {
+//	b := c.Bounds()
+//	for y := b.Min.Y; y < b.Max.Y; y++ {
+//		for x := b.Min.X; x < b.Max.X; x++ {
+//			_, _, _, a := c.At(x, y).RGBA()
+//			if a != 0xffff {
+//				return false
+//			}
+//		}
+//	}
+//	return true
+//}
 
 func NewCanvas(width int, height int, color uint32) *Canvas {
 	pixels := make([]Pixel, width*height)
