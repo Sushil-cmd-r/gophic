@@ -117,6 +117,51 @@ func fillCircle(canvas *Canvas, cx int, cy int, r uint, color uint32) {
 	}
 }
 
+func swap(a *int, b *int) {
+	temp := *a
+	*a = *b
+	*b = temp
+}
+func drawLine(canvas *Canvas, x1 int, y1 int, x2 int, y2 int, color uint32) {
+	dx := x2 - x1
+	dy := y2 - y1
+
+	pixel := Pixel{
+		color: color,
+	}
+	if dx != 0 {
+		c := y1 - dy*x1/dx
+		if x1 > x2 {
+			swap(&x1, &x2)
+		}
+		for x := x1; x <= x2; x++ {
+			if x >= 0 && x < canvas.width {
+				sy1 := dy*x/dx + c
+				sy2 := dy*(x+1)/dx + c
+				if sy1 > sy2 {
+					swap(&sy1, &sy2)
+				}
+				for y := sy1; y <= sy2; y++ {
+					if y >= 0 && y < canvas.height {
+						canvas.pixels[y*canvas.width+x] = pixel
+					}
+				}
+			}
+		}
+	} else {
+		if y1 > y2 {
+			swap(&y1, &y2)
+		}
+		for y := y1; y <= y2; y++ {
+			if y >= 0 && y < canvas.height {
+				canvas.pixels[y*canvas.width+x1] = pixel
+
+			}
+		}
+	}
+
+}
+
 func saveToPNG(canvas *Canvas, filePath string) {
 	f, err := os.Create(filePath)
 	if err != nil {
